@@ -32,7 +32,7 @@ fn run_file(file_path: &str) -> Result<()> {
     let source =
         std::fs::read_to_string(file_path).context(format!("Could not run `{}`", file_path))?;
 
-    run(&source);
+    run(&source)?;
 
     Ok(())
 }
@@ -58,15 +58,23 @@ fn run_prompt() -> Result<()> {
             break;
         }
 
-        run(&input.trim());
+        let result = run(&input);
+
+        if let Err(e) = result {
+            println!("Error: {}.", e);
+        }
     }
 
     Ok(())
 }
 
 // Executes the provided Lox source
-fn run(source: &str) {
-    for token in Scanner::new(source).scan_tokens() {
+fn run(source: &str) -> Result<()> {
+    let tokens = Scanner::new(source).scan_tokens()?;
+
+    for token in tokens {
         dbg!(token);
     }
+
+    Ok(())
 }
